@@ -73,10 +73,10 @@ class Settings:
     def save_current_configuration(self, conf):
         self.option_set(key_conf_sec_general, key_conf_current_set_name, _conf_full(conf))
 
-    def current_file_entries(self):
-        curr = self.__current_config_dirty()
+    def conf_file_entries(self, conf=None):
+        curr = _conf_full(conf) if conf is not None else self.__current_config_dirty()
         entries = {}
-        if not curr:
+        if not curr or curr not in self.conf.sections():
             return entries
         for opt in self.conf.options(curr):
             if re.search(r"(?:^\d+\.\w+$)", opt) is not None:
@@ -86,8 +86,7 @@ class Settings:
                                 bool if key_opt == key_v_part_use_flag else str)
         return entries
 
-
-    def save_current_file_entries(self, conf, entries):
+    def save_conf_file_entries(self, conf, entries):
         sec = _conf_full(conf)
         for k, fe in entries.items():
             mkopt = lambda opt: '.'.join((str(k), opt))

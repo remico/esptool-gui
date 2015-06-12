@@ -31,11 +31,12 @@ class MainWindow:
         comboframe.columnconfigure(1, weight=1)
 
         self.conf_combo_var = TK.StringVar()
+        self.conf_combo_var.trace('w', self.__combo_clicked)
 
         conf_label = TK.Label(comboframe, text="Configuration:")
         self.conf_combo = TTK.Combobox(comboframe, width=50,
-                                       textvariable=self.conf_combo_var,)
-        conf_btn_add = TK.Button(comboframe, text="Add",
+                                       textvariable=self.conf_combo_var)
+        conf_btn_add = TK.Button(comboframe, text="Save",
                             command=lambda: self.__add_config(self.conf_combo.get()))
         conf_btn_del = TK.Button(comboframe, text="Del",
                             command=lambda: self.__del_config(self.conf_combo.get()))
@@ -189,31 +190,34 @@ class MainWindow:
     def __save_settings(self):
         curr = self.__combo_config_name_get()
         self.S.save_current_configuration(curr)
-        self.S.save_current_file_entries(curr, self.files)
+        self.S.save_conf_file_entries(curr, self.files)
         self.S.write()
 
     def __read_settings(self):
         # fill file entries
-        for key_fe, fe in self.S.current_file_entries().items():
-            for key_opt, val in fe.items():
-                self.files[key_fe][key_opt].set(val)
-
-                if key_opt == key_v_part_use_flag:
-                    self.update_file_entry_state(key_fe)
+        self.__fill_fes()
 
         # fill combo with configurations list
         self.conf_combo['values'] = self.S.configurations()
         current_configuration = self.S.current_configuration()
         self.__combo_config_name_set(current_configuration)
 
+    def __fill_fes(self, conf=None):
+        for key_fe, fe in self.S.conf_file_entries(conf).items():
+             for key_opt, val in fe.items():
+                 self.files[key_fe][key_opt].set(val)
+
+                 if key_opt == key_v_part_use_flag:
+                     self.update_file_entry_state(key_fe)
+
+
     def __add_config(self, config_name):
+        self.__save_settings()
         l = list(self.conf_combo['values'])
         if config_name in l:
             return
         l.append(config_name)
         self.conf_combo['values'] = l
-        self.__save_settings()
-        print("add:", config_name)
 
     def __del_config(self, config_name):
         l = list(self.conf_combo['values'])
@@ -224,4 +228,6 @@ class MainWindow:
         self.conf_combo.current(0)
         self.S.remove(config_name)
         self.__save_settings()
-        print("remove:", config_name)
+
+    def __combo_clicked(self, *a):
+        self.__fill_fes(self.__combo_config_name_get())
