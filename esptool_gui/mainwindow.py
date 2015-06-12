@@ -1,43 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# This program or module is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version. It is provided for educational
-# purposes and is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-
-"""Simple GUI wrapper for esptool.py (https://github.com/themadinventor/esptool)
-based on python3 and Tkinter
+"""
 """
 
 __author__ = 'remico <remicollab+github@gmal.com>'
 
-
 import os
-import sys
-from configparser import ConfigParser as Conf, NoSectionError, NoOptionError
-import subprocess
 import tkinter as TK
 import tkinter.ttk as TTK
 import tkinter.filedialog as filedialog
 import tkinter.messagebox as messagebox
 
-from esptool_gui.constants import *
-from esptool_gui.settings import *
-
-
+from .constants import *
 
 
 SLOT = lambda f, *x, **k: lambda: f(*x, **k)
 
 
 class MainWindow:
-    def __init__(self, parent):
+    def __init__(self, parent, settings):
         self.parent = parent
+        self.S = settings
 
         # ***************************************************************
         # combo frame
@@ -75,7 +59,7 @@ class MainWindow:
             var_offset = TK.StringVar()
 
             file_chbx = TK.Checkbutton(topframe, variable=var_use_flag,
-                                       command=SLOT(self.update_file_entry, i))
+                                       command=SLOT(self.update_file_entry_state, i))
             file_path = TK.Label(topframe, relief=TK.SUNKEN,
                                  textvariable=var_path, activebackground='white',
                                  anchor=TK.W, state=TK.DISABLED)
@@ -96,19 +80,13 @@ class MainWindow:
             self.files[i] = ({key_v_part_use_flag: var_use_flag,
                               key_v_part_path: var_path,
                               key_v_part_offset: var_offset,
+                              key_w_use_flag: file_chbx,
                               key_w_path: file_path,
                               key_w_btn: file_btn,
                               key_w_offset_lbl: file_offset_label,
                               key_w_offset: file_offset})
 
-        # config
-        self.sfname = 'espsettings.ini'
-        if not os.path.exists(self.sfname):
-            with open(self.sfname, mode='w+'): pass
-
-        self.conf = Conf()
-        self.conf.read(self.sfname)
-        self.__read_settings()
+            self.__reset_offset(var_offset)
 
         # ***************************************************************
         # bottom frame
@@ -140,9 +118,11 @@ class MainWindow:
         window.columnconfigure(0, weight=1)
         window.rowconfigure(2, weight=1)
 
-        self.parent.geometry("{0}x{1}+{2}+{3}".format(640, 780, 150, 150))
-        self.parent.title("esptool.py GUI")
+        self.parent.geometry("{0}x{1}+{2}+{3}".format(640, 780, 350, 150))
+        self.parent.title("esptool GUI")
         self.parent.bind("<Control-q>", self.app_quit)
+
+        self.__read_settings()
 
     def set_status_bar(self, text, timeout=5000):
         self.statusbar["text"] = text
@@ -153,28 +133,24 @@ class MainWindow:
         self.statusbar["text"] = ""
 
     def get_file_name(self, key):
-        if not self.okay_to_continue():
-            return
-
-        current_sec = self.conf_option_get(key_conf_sec_general, key_conf_current_set_name)
-        init_dir = self.conf_option_get(current_sec, key_conf_last_dir)
+        current_conf = self.__combo_config_name_get()
+        init_dir = self.S.last_used_path(current_conf)
 
         filename = filedialog.askopenfilename(
             title="Choose firmware part",
-            initialdir=init_dir,
+            initialdir=init_dir if init_dir else '.',
             filetypes=[("Binary files", "*.bin")],
             defaultextension=".bin", parent=self.parent)
+
         if filename:
             # remember the last used directory
-            if 'current_sec' not in locals():
-                current_sec = key_conf_sec_current
-            self.conf_option_set(current_sec, key_conf_last_dir, os.path.dirname(filename))
+            self.S.save_last_used_path(current_conf, os.path.dirname(filename))
 
             fe = self.files[key]
             fe[key_v_part_path].set(filename)
             self.__reset_offset(fe[key_v_part_offset])
 
-    def update_file_entry(self, key):
+    def update_file_entry_state(self, key):
         fe_used = self.files[key][key_v_part_use_flag].get()
         self.__update_fe(self.files[key], fe_used)
 
@@ -207,89 +183,45 @@ class MainWindow:
     def __combo_config_name_set(self, name):
         self.conf_combo_var.set(name)
 
-    def __combo_config_name_set_current(self):
-        curr = self.conf_option_get(key_conf_sec_general, key_conf_current_set_name)
-        self.__combo_config_name_set(curr[len(key_conf_prefix):] if curr else
-                                key_conf_sec_default[len(key_conf_prefix):])
-
     def __combo_config_name_get(self):
-        return ''.join([key_conf_prefix, self.conf_combo_var.get()])
+        return self.conf_combo_var.get()
 
     def __save_settings(self):
         curr = self.__combo_config_name_get()
-        self.conf_option_set(key_conf_sec_general, key_conf_current_set_name, curr)
-
-        sec = self.conf_option_get(key_conf_sec_general, key_conf_current_set_name)
-        for k, fe in self.files.items():
-            mkopt = lambda opt: '.'.join((str(k), opt))
-            self.conf_option_set(sec, mkopt(key_v_part_path), fe[key_v_part_path].get())
-            self.conf_option_set(sec, mkopt(key_v_part_offset), fe[key_v_part_offset].get())
-            self.conf_option_set(sec, mkopt(key_v_part_use_flag), str(bool(fe[key_v_part_use_flag].get())))
-
-        with open(self.sfname, 'w') as f:
-            self.conf.write(f)
+        self.S.save_current_configuration(curr)
+        self.S.save_current_file_entries(curr, self.files)
+        self.S.write()
 
     def __read_settings(self):
-        for sec in self.conf.sections():
-            for opt in self.conf.options(sec):
-                keys = opt.split('.')
-                if len(keys) == 2:
-                    key_fe, optname = int(keys[0]), keys[1]
-                    if optname != key_v_part_use_flag:
-                        val = self.conf_option_get(sec, opt, str)
-                    else:
-                        val = self.conf_option_get(sec, opt, bool)
-                    self.files[key_fe][optname].set(val)
+        # fill file entries
+        for key_fe, fe in self.S.current_file_entries().items():
+            for key_opt, val in fe.items():
+                self.files[key_fe][key_opt].set(val)
+
+                if key_opt == key_v_part_use_flag:
+                    self.update_file_entry_state(key_fe)
 
         # fill combo with configurations list
-        self.conf_combo['values'] = [conf[len(key_conf_prefix):]
-                                      for conf in self.conf.sections()
-                                        if conf.startswith(key_conf_prefix)]
-        self.__combo_config_name_set_current()
+        self.conf_combo['values'] = self.S.configurations()
+        current_configuration = self.S.current_configuration()
+        self.__combo_config_name_set(current_configuration)
 
     def __add_config(self, config_name):
+        l = list(self.conf_combo['values'])
+        if config_name in l:
+            return
+        l.append(config_name)
+        self.conf_combo['values'] = l
+        self.__save_settings()
         print("add:", config_name)
 
     def __del_config(self, config_name):
+        l = list(self.conf_combo['values'])
+        if len(l) == 1:
+            return
+        l.remove(config_name)
+        self.conf_combo['values'] = l
+        self.conf_combo.current(0)
+        self.S.remove(config_name)
+        self.__save_settings()
         print("remove:", config_name)
-
-    def conf_option_set(self, section, option, value):
-        c = self.conf
-        if not c.has_section(section):
-            c.add_section(section)
-        c.set(section, option, str(value))
-
-    def conf_option_get(self, section, option, type=str):
-        c = self.conf
-        if not c.has_section(section):
-            c.add_section(section)
-
-        val = ""
-        if not c.has_option(section, option):
-            return val
-
-        if type is str:
-            val = c.get(section, option, raw=True)
-        elif type is bool:
-            val = c.getboolean(section, option, raw=True)
-        elif type is int:
-            val = c.getint(section, option, raw=True)
-        else:
-            val = c.getfloat(section, option, raw=True)
-
-        return val
-
-
-if __name__ == '__main__':
-    application = TK.Tk()
-    path = os.path.join(os.path.dirname(__file__), "rc/")
-    if sys.platform.startswith("win"):
-        icon = path + "app_icon.ico"
-        application.iconbitmap(icon, default=icon)
-    else:
-        img = TK.PhotoImage(file=path + 'app_icon.png')
-        application.tk.call('wm', 'iconphoto', application._w, img)
-    window = MainWindow(application)
-    application.minsize(500, 650)
-    application.protocol("WM_DELETE_WINDOW", window.app_quit)
-    application.mainloop()

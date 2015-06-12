@@ -6,9 +6,3 @@
 
 __author__ = 'remico <remicollab+github@gmal.com>'
 
-
-print('__path__:', __path__)
-print('')
-# import sys
-# print('sys.path:', sys.path)
-# print('')
