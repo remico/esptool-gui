@@ -7,7 +7,7 @@
 __author__ = 'remico <remicollab+github@gmal.com>'
 
 
-n_file_entries = 5
+n_file_entries = 8
 
 
 key_v_part_use_flag = 'used'

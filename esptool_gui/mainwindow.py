@@ -99,6 +99,9 @@ class MainWindow:
         flash_btn = TK.Button(midframe, text="Flash", command=self.__execute)
         flash_btn.grid(row=0, column=0, padx=10, pady=10, sticky=TK.E)
 
+        clear_log_btn =TK.Button(midframe, text="Clear log", command=self.__clear_log)
+        clear_log_btn.grid(row=1, column=0, padx=10, sticky=TK.E)
+
         # ***************************************************************
         # bottom frame
         botframe = TK.Frame(self.parent)
@@ -246,5 +249,7 @@ class MainWindow:
         parts = [(fe[key_v_part_offset].get(), fe[key_v_part_path].get())
                     for fe in self.files.values()
                         if fe[key_v_part_use_flag].get()]
-        print(parts)
         self.executor.run(parts, out=self.shell)
+
+    def __clear_log(self):
+        self.shell.delete(1.0, TK.END)

@@ -32,7 +32,7 @@ if __name__ == '__main__':
     else:
         img = TK.PhotoImage(file=path + 'app_icon.png')
         application.tk.call('wm', 'iconphoto', application._w, img)
-    window = MainWindow(application, Settings(), Executor())
+    window = MainWindow(application, Settings(), Executor(application))
     application.minsize(500, 650)
     application.protocol("WM_DELETE_WINDOW", window.app_quit)
     application.mainloop()
