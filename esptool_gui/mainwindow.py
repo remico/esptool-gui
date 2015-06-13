@@ -10,8 +10,7 @@ import os
 import tkinter as TK
 import tkinter.ttk as TTK
 import tkinter.filedialog as filedialog
-import tkinter.messagebox as messagebox
-
+# import tkinter.messagebox as messagebox
 from .constants import *
 
 
@@ -19,9 +18,10 @@ SLOT = lambda f, *x, **k: lambda: f(*x, **k)
 
 
 class MainWindow:
-    def __init__(self, parent, settings):
+    def __init__(self, parent, settings, executor):
         self.parent = parent
         self.S = settings
+        self.executor = executor
 
         # ***************************************************************
         # combo frame
@@ -90,9 +90,19 @@ class MainWindow:
             self.__reset_offset(var_offset)
 
         # ***************************************************************
+        # middle frame
+        midframe = TK.Frame(self.parent)
+        midframe.grid(row=2, column=0, sticky=TK.NSEW)
+
+        midframe.columnconfigure(0, weight=1)
+
+        flash_btn = TK.Button(midframe, text="Flash", command=self.__execute)
+        flash_btn.grid(row=0, column=0, padx=10, pady=10, sticky=TK.E)
+
+        # ***************************************************************
         # bottom frame
         botframe = TK.Frame(self.parent)
-        botframe.grid(row=2, column=0, sticky=TK.NSEW)
+        botframe.grid(row=3, column=0, sticky=TK.NSEW)
 
         botframe.columnconfigure(0, weight=1)
         botframe.rowconfigure(1, weight=1)
@@ -117,7 +127,7 @@ class MainWindow:
         # main window
         window = self.parent.winfo_toplevel()
         window.columnconfigure(0, weight=1)
-        window.rowconfigure(2, weight=1)
+        window.rowconfigure(3, weight=1)
 
         self.parent.geometry("{0}x{1}+{2}+{3}".format(640, 780, 350, 150))
         self.parent.title("esptool GUI")
@@ -231,3 +241,10 @@ class MainWindow:
 
     def __combo_clicked(self, *a):
         self.__fill_fes(self.__combo_config_name_get())
+
+    def __execute(self):
+        parts = [(fe[key_v_part_offset].get(), fe[key_v_part_path].get())
+                    for fe in self.files.values()
+                        if fe[key_v_part_use_flag].get()]
+        print(parts)
+        self.executor.run(parts, out=self.shell)

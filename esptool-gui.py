@@ -20,6 +20,7 @@ import os, sys
 import tkinter as TK
 from esptool_gui.mainwindow import MainWindow
 from esptool_gui.settings import Settings
+from esptool_gui.executor import Executor
 
 
 if __name__ == '__main__':
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     else:
         img = TK.PhotoImage(file=path + 'app_icon.png')
         application.tk.call('wm', 'iconphoto', application._w, img)
-    window = MainWindow(application, Settings())
+    window = MainWindow(application, Settings(), Executor())
     application.minsize(500, 650)
     application.protocol("WM_DELETE_WINDOW", window.app_quit)
     application.mainloop()
