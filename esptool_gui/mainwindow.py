@@ -177,12 +177,12 @@ class MainWindow:
         # if not self.dirty:
         #     return True
         # reply = messagebox.askyesnocancel(
-        #                 "Bookmarks - Unsaved Changes",
-        #                 "Save unsaved changes?", parent=self.parent)
+        #                 "The message header...",
+        #                 "The question...?", parent=self.parent)
         # if reply is None:
         #     return False
         # if reply:
-        #     return self.fileSave()
+        #     return self.doRequiredAction()
         return True
 
     def __update_fe(self, entry, enabled):

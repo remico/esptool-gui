@@ -9,7 +9,6 @@ __author__ = 'remico <remicollab+github@gmal.com>'
 import subprocess
 import tkinter as TK
 from re import escape as _escape
-import os.path
 
 
 class Executor:
@@ -28,19 +27,13 @@ class Executor:
         def printout(subproc):
             while True:
                 s = subproc.stdout.readline()
+                if subproc.poll() is not None:
+                    if not s:
+                        break
                 if s:
                     out.insert(TK.END, s)
                     out.see(TK.END)
-                if subproc.poll() is not None:
-                    if os.path.getsize(self.errfile_name):
-                        with open(self.errfile_name, 'r+') as f:
-                            s = f.read()
-                            f.truncate(0)
-                            out.insert(TK.END, s)
-                            out.see(TK.END)
-                    if not s:
-                        break
-                self.nextstep = self.master.after(1, next_)
+                self.nextstep = self.master.after(5, next_)
                 yield
 
         port_ = port if port is not None else "/dev/ttyUSB0"
@@ -49,17 +42,15 @@ class Executor:
         command = "{tool} --port={port} write_flash {bins}"\
                    .format(tool=self.tool, port=port_, bins=parts_)
 
-        self.errfile_o = open(self.errfile_name, 'w+')
-
         try:
             p = subprocess.Popen(command, shell=True,
                                  # executable="/bin/bash",
                                  stdout=subprocess.PIPE,
-                                 stderr=self.errfile_o,
+                                 stderr=subprocess.STDOUT,
                                  universal_newlines=True)
             if out is not None:
                 next_ = printout(p).__next__
-                self.nextstep = self.master.after(1, next_)
+                self.nextstep = self.master.after(5, next_)
 
         except Exception as e:
             if out is not None:
