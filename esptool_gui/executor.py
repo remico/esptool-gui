@@ -17,7 +17,7 @@ class Executor:
         self.master = master
         self.tool =  self.esptool_path()
         self.nextstep = 0
-        self.errfile = 'esptoolerr'
+        self.errfile_name = 'esptoolerr'
 
     def esptool_path(self):
         p = subprocess.Popen('which esptool.py', shell=True,
@@ -28,14 +28,18 @@ class Executor:
         def printout(subproc):
             while True:
                 s = subproc.stdout.readline()
-                if os.path.getsize(self.errfile):
-                    with open(self.errfile, 'r+') as f:
-                        s += f.read()
-                        f.truncate(0)
-                out.insert(TK.END, s)
-                out.see(TK.END)
-                if subproc.poll() is not None and not s:
-                    break
+                if s:
+                    out.insert(TK.END, s)
+                    out.see(TK.END)
+                if subproc.poll() is not None:
+                    if os.path.getsize(self.errfile_name):
+                        with open(self.errfile_name, 'r+') as f:
+                            s = f.read()
+                            f.truncate(0)
+                            out.insert(TK.END, s)
+                            out.see(TK.END)
+                    if not s:
+                        break
                 self.nextstep = self.master.after(1, next_)
                 yield
 
@@ -45,11 +49,13 @@ class Executor:
         command = "{tool} --port={port} write_flash {bins}"\
                    .format(tool=self.tool, port=port_, bins=parts_)
 
+        self.errfile_o = open(self.errfile_name, 'w+')
+
         try:
             p = subprocess.Popen(command, shell=True,
                                  # executable="/bin/bash",
                                  stdout=subprocess.PIPE,
-                                 stderr=open(self.errfile, 'w+'),
+                                 stderr=self.errfile_o,
                                  universal_newlines=True)
             if out is not None:
                 next_ = printout(p).__next__
