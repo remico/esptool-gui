@@ -36,7 +36,7 @@ class Executor:
                 self.nextstep = self.master.after(5, next_)
                 yield
 
-        port_ = port if port is not None else "/dev/ttyUSB0"
+        port_ = port if port else "/dev/ttyUSB0"
         parts_ = ' '.join(("%s %s" % (fe[0], _escape(fe[1])) for fe in parts))
 
         command = "{tool} --port={port} write_flash {bins}"\

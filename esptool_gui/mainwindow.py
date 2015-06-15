@@ -24,10 +24,31 @@ class MainWindow:
         self.executor = executor
 
         # ***************************************************************
-        # combo frame
-        comboframe = TK.Frame(self.parent)
-        comboframe.grid(row=0, column=0, pady=10, sticky=TK.NW)
+        # frames
+        comboframe = self.__init_combo_frame(self.parent)
+        topframe = self.__init_top_frame(self.parent)
+        midframe = self.__init_mid_frame(self.parent)
+        botframe = self.__init_bot_frame(self.parent)
 
+        comboframe.grid(row=0, column=0, pady=10, sticky=TK.NW)
+        topframe.grid(row=1, column=0, sticky=TK.NSEW)
+        midframe.grid(row=2, column=0, sticky=TK.NSEW)
+        botframe.grid(row=3, column=0, sticky=TK.NSEW)
+
+        # ***************************************************************
+        # entire window
+        window = self.parent.winfo_toplevel()
+        window.columnconfigure(0, weight=1)
+        window.rowconfigure(3, weight=1)
+
+        self.parent.geometry("{0}x{1}+{2}+{3}".format(640, 780, 350, 150))
+        self.parent.title("esptool GUI")
+        self.parent.bind("<Control-q>", self.app_quit)
+
+        self.__read_settings()
+
+    def __init_combo_frame(self, parent):
+        comboframe = TK.Frame(parent)
         comboframe.columnconfigure(1, weight=1)
 
         self.conf_combo_var = TK.StringVar()
@@ -46,11 +67,10 @@ class MainWindow:
         conf_btn_add.grid(row=0, column=3, padx=2, pady=2)
         conf_btn_del.grid(row=0, column=4, padx=2, pady=2)
 
-        # ***************************************************************
-        # top frame
-        topframe = TK.Frame(self.parent)
-        topframe.grid(row=1, column=0, sticky=TK.NSEW)
+        return comboframe
 
+    def __init_top_frame(self, parent):
+        topframe = TK.Frame(parent)
         topframe.columnconfigure(1, weight=1)
 
         self.files = {}
@@ -60,9 +80,11 @@ class MainWindow:
             var_offset = TK.StringVar()
 
             file_chbx = TK.Checkbutton(topframe, variable=var_use_flag,
-                                       command=SLOT(self.update_file_entry_state, i))
+                                       command=SLOT(
+                                           self.update_file_entry_state, i))
             file_path = TK.Label(topframe, relief=TK.SUNKEN,
-                                 textvariable=var_path, activebackground='white',
+                                 textvariable=var_path,
+                                 activebackground='white',
                                  anchor=TK.W, state=TK.DISABLED)
             file_btn = TK.Button(topframe, text="...",
                                  command=SLOT(self.get_file_name, i),
@@ -89,54 +111,43 @@ class MainWindow:
 
             self.__reset_offset(var_offset)
 
-        # ***************************************************************
-        # middle frame
-        midframe = TK.Frame(self.parent)
-        midframe.grid(row=2, column=0, sticky=TK.NSEW)
+        return topframe
 
+    def __init_mid_frame(self, parent):
+        midframe = TK.Frame(parent)
         midframe.columnconfigure(0, weight=1)
 
         flash_btn = TK.Button(midframe, text="Flash", command=self.__execute)
-        flash_btn.grid(row=0, column=0, padx=10, pady=10, sticky=TK.E)
+        clear_log_btn = TK.Button(midframe, text="Clear log",
+                                  command=self.__clear_log)
 
-        clear_log_btn =TK.Button(midframe, text="Clear log", command=self.__clear_log)
+        flash_btn.grid(row=0, column=0, padx=10, pady=10, sticky=TK.E)
         clear_log_btn.grid(row=1, column=0, padx=10, sticky=TK.E)
 
-        # ***************************************************************
-        # bottom frame
-        botframe = TK.Frame(self.parent)
-        botframe.grid(row=3, column=0, sticky=TK.NSEW)
+        return midframe
 
+    def __init_bot_frame(self, parent):
+        botframe = TK.Frame(parent)
         botframe.columnconfigure(0, weight=1)
         botframe.rowconfigure(1, weight=1)
 
         # shell and scroll
         shell_label = TK.Label(botframe, text="Shell log:", anchor=TK.NW)
         self.shell = TK.Text(botframe, height=20)
-        self.scrollbar = TK.Scrollbar(botframe, orient=TK.VERTICAL,
-                                           command=self.shell.yview)
-        self.shell.configure(yscrollcommand=self.scrollbar.set)
+        scrollbar = TK.Scrollbar(botframe, orient=TK.VERTICAL,
+                                      command=self.shell.yview)
+        self.shell.configure(yscrollcommand=scrollbar.set)
 
         shell_label.grid(row=0, column=0, padx=2, pady=2, sticky=TK.W)
         self.shell.grid(row=1, column=0, sticky=TK.NSEW)
-        self.scrollbar.grid(row=1, column=1, sticky=TK.NS)
+        scrollbar.grid(row=1, column=1, sticky=TK.NS)
 
         # status bar
         self.statusbar = TK.Label(botframe, text="Ready...", anchor=TK.W)
         self.statusbar.after(5000, self.clear_status_bar)
         self.statusbar.grid(row=2, column=0, sticky=TK.EW)
 
-        # ***************************************************************
-        # main window
-        window = self.parent.winfo_toplevel()
-        window.columnconfigure(0, weight=1)
-        window.rowconfigure(3, weight=1)
-
-        self.parent.geometry("{0}x{1}+{2}+{3}".format(640, 780, 350, 150))
-        self.parent.title("esptool GUI")
-        self.parent.bind("<Control-q>", self.app_quit)
-
-        self.__read_settings()
+        return botframe
 
     def set_status_bar(self, text, timeout=5000):
         self.statusbar["text"] = text
@@ -222,7 +233,6 @@ class MainWindow:
 
                  if key_opt == key_v_part_use_flag:
                      self.update_file_entry_state(key_fe)
-
 
     def __add_config(self, config_name):
         self.__save_settings()
