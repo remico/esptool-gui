@@ -29,3 +29,4 @@ key_conf_sec_default = key_conf_prefix + default_conf_sec_name
 
 key_conf_last_dir = "lastdir"
 key_conf_current_set_name = "current"
+key_port = "port"

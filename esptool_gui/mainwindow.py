@@ -48,18 +48,18 @@ class MainWindow:
         self.__read_settings()
 
     def __init_combo_frame(self, parent):
-        comboframe = TK.Frame(parent)
-        comboframe.columnconfigure(1, weight=1)
+        frame = TK.Frame(parent)
+        frame.columnconfigure(1, weight=1)
 
-        self.conf_combo_var = TK.StringVar()
-        self.conf_combo_var.trace('w', self.__combo_clicked)
+        self.var_conf_combo = TK.StringVar()
+        self.var_conf_combo.trace('w', self.__combo_clicked)
 
-        conf_label = TK.Label(comboframe, text="Configuration:")
-        self.conf_combo = TTK.Combobox(comboframe, width=50,
-                                       textvariable=self.conf_combo_var)
-        conf_btn_add = TK.Button(comboframe, text="Save",
+        conf_label = TK.Label(frame, text="Configuration:")
+        self.conf_combo = TTK.Combobox(frame, width=50,
+                                       textvariable=self.var_conf_combo)
+        conf_btn_add = TK.Button(frame, text="Save",
                             command=lambda: self.__add_config(self.conf_combo.get()))
-        conf_btn_del = TK.Button(comboframe, text="Del",
+        conf_btn_del = TK.Button(frame, text="Del",
                             command=lambda: self.__del_config(self.conf_combo.get()))
 
         conf_label.grid(row=0, column=0, padx=2, pady=2, sticky=TK.W)
@@ -67,11 +67,11 @@ class MainWindow:
         conf_btn_add.grid(row=0, column=3, padx=2, pady=2)
         conf_btn_del.grid(row=0, column=4, padx=2, pady=2)
 
-        return comboframe
+        return frame
 
     def __init_top_frame(self, parent):
-        topframe = TK.Frame(parent)
-        topframe.columnconfigure(1, weight=1)
+        frame = TK.Frame(parent)
+        frame.columnconfigure(1, weight=1)
 
         self.files = {}
         for i in range(n_file_entries):
@@ -79,19 +79,18 @@ class MainWindow:
             var_path = TK.StringVar()
             var_offset = TK.StringVar()
 
-            file_chbx = TK.Checkbutton(topframe, variable=var_use_flag,
-                                       command=SLOT(
-                                           self.update_file_entry_state, i))
-            file_path = TK.Label(topframe, relief=TK.SUNKEN,
+            file_chbx = TK.Checkbutton(frame, variable=var_use_flag,
+                                       command=SLOT(self.update_file_entry_state, i))
+            file_path = TK.Label(frame, relief=TK.SUNKEN,
                                  textvariable=var_path,
                                  activebackground='white',
                                  anchor=TK.W, state=TK.DISABLED)
-            file_btn = TK.Button(topframe, text="...",
+            file_btn = TK.Button(frame, text="...",
                                  command=SLOT(self.get_file_name, i),
                                  state=TK.DISABLED)
-            file_offset_label = TK.Label(topframe, text="Offset:",
+            file_offset_label = TK.Label(frame, text="Offset:",
                                          state=TK.DISABLED)
-            file_offset = TK.Entry(topframe, width=12, textvariable=var_offset,
+            file_offset = TK.Entry(frame, width=12, textvariable=var_offset,
                                    state=TK.DISABLED)
 
             file_chbx.grid(row=i, column=0, padx=2, pady=2)
@@ -111,30 +110,36 @@ class MainWindow:
 
             self.__reset_offset(var_offset)
 
-        return topframe
+        return frame
 
     def __init_mid_frame(self, parent):
-        midframe = TK.Frame(parent)
-        midframe.columnconfigure(0, weight=1)
+        frame = TK.Frame(parent)
+        frame.columnconfigure(2, weight=1)
 
-        flash_btn = TK.Button(midframe, text="Flash", command=self.__execute)
-        clear_log_btn = TK.Button(midframe, text="Clear log",
+        self.var_port_value = TK.StringVar()
+
+        port_label = TK.Label(frame, text="Port:")
+        port_value = TK.Entry(frame, textvariable=self.var_port_value, width=12)
+        flash_btn = TK.Button(frame, text="Flash", command=self.__execute)
+        clear_log_btn = TK.Button(frame, text="Clear log",
                                   command=self.__clear_log)
 
-        flash_btn.grid(row=0, column=0, padx=10, pady=10, sticky=TK.E)
-        clear_log_btn.grid(row=1, column=0, padx=10, sticky=TK.E)
+        port_label.grid(row=0, column=0, padx=2)
+        port_value.grid(row=0, column=1, padx=2)
+        flash_btn.grid(row=0, column=2, padx=10, pady=10, sticky=TK.E)
+        clear_log_btn.grid(row=1, column=2, padx=10, sticky=TK.E)
 
-        return midframe
+        return frame
 
     def __init_bot_frame(self, parent):
-        botframe = TK.Frame(parent)
-        botframe.columnconfigure(0, weight=1)
-        botframe.rowconfigure(1, weight=1)
+        frame = TK.Frame(parent)
+        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(1, weight=1)
 
         # shell and scroll
-        shell_label = TK.Label(botframe, text="Shell log:", anchor=TK.NW)
-        self.shell = TK.Text(botframe, height=20)
-        scrollbar = TK.Scrollbar(botframe, orient=TK.VERTICAL,
+        shell_label = TK.Label(frame, text="Shell log:", anchor=TK.NW)
+        self.shell = TK.Text(frame, height=20)
+        scrollbar = TK.Scrollbar(frame, orient=TK.VERTICAL,
                                       command=self.shell.yview)
         self.shell.configure(yscrollcommand=scrollbar.set)
 
@@ -143,11 +148,11 @@ class MainWindow:
         scrollbar.grid(row=1, column=1, sticky=TK.NS)
 
         # status bar
-        self.statusbar = TK.Label(botframe, text="Ready...", anchor=TK.W)
+        self.statusbar = TK.Label(frame, text="Ready...", anchor=TK.W)
         self.statusbar.after(5000, self.clear_status_bar)
         self.statusbar.grid(row=2, column=0, sticky=TK.EW)
 
-        return botframe
+        return frame
 
     def set_status_bar(self, text, timeout=5000):
         self.statusbar["text"] = text
@@ -206,25 +211,42 @@ class MainWindow:
         var_offset.set('0x')
 
     def __combo_config_name_set(self, name):
-        self.conf_combo_var.set(name)
+        self.var_conf_combo.set(name)
 
     def __combo_config_name_get(self):
-        return self.conf_combo_var.get()
+        return self.var_conf_combo.get()
+
+    def __port_get(self):
+        return self.var_port_value.get()
+
+    def __port_set(self, val):
+        self.var_port_value.set(val)
 
     def __save_settings(self):
-        curr = self.__combo_config_name_get()
-        self.S.save_current_configuration(curr)
-        self.S.save_conf_file_entries(curr, self.files)
+        current_conf = self.__combo_config_name_get()
+        self.S.save_conf_file_entries(current_conf, self.files)
+
+        # general
+        general_settings = {
+            key_port: self.__port_get(),
+            key_conf_current_set_name: current_conf
+        }
+        self.S.save_general_settings(general_settings)
+
+        # save on disk
         self.S.write()
 
     def __read_settings(self):
         # fill file entries
         self.__fill_fes()
 
+        # general
+        general_settings = self.S.general_settings()
+        self.__port_set(general_settings[key_port])
+        self.__combo_config_name_set(general_settings[key_conf_current_set_name])
+
         # fill combo with configurations list
         self.conf_combo['values'] = self.S.configurations()
-        current_configuration = self.S.current_configuration()
-        self.__combo_config_name_set(current_configuration)
 
     def __fill_fes(self, conf=None):
         for key_fe, fe in self.S.conf_file_entries(conf).items():
@@ -249,7 +271,7 @@ class MainWindow:
         l.remove(config_name)
         self.conf_combo['values'] = l
         self.conf_combo.current(0)
-        self.S.remove(config_name)
+        self.S.remove_conf(config_name)
         self.__save_settings()
 
     def __combo_clicked(self, *a):
@@ -259,7 +281,7 @@ class MainWindow:
         parts = [(fe[key_v_part_offset].get(), fe[key_v_part_path].get())
                     for fe in self.files.values()
                         if fe[key_v_part_use_flag].get()]
-        self.executor.run(parts, out=self.shell)
+        self.executor.run(parts, out=self.shell, port=self.__port_get())
 
     def __clear_log(self):
         self.shell.delete(1.0, TK.END)
