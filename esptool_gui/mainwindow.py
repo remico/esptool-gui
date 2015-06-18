@@ -41,7 +41,7 @@ class MainWindow:
         window.columnconfigure(0, weight=1)
         window.rowconfigure(3, weight=1)
 
-        self.parent.geometry("{0}x{1}+{2}+{3}".format(640, 780, 350, 150))
+        self.parent.geometry("{0}x{1}+{2}+{3}".format(768, 768, 350, 150))
         self.parent.title("esptool GUI")
         self.parent.bind("<Control-q>", self.app_quit)
 

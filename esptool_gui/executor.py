@@ -23,7 +23,13 @@ class Executor:
                              stdout=subprocess.PIPE, universal_newlines=True)
         return p.stdout.readline()[:-1]
 
-    def run(self, parts, *, out=None, port=None):
+    def run(self, parts, **kwargs):
+        out = kwargs.get('out')
+        port = kwargs.get('port')
+        flash_freq = kwargs.get('ffreq', '40m')     # 40m, 26m, 20m, 80m
+        flash_mode = kwargs.get('fmode', 'qio')     # qio, qout, dio, dout
+        flash_size = kwargs.get('fsize', '8m')      # 4m,2m,8m,16m,32m,16m-c1,32m-c1,32m-c2 in MBit
+
         def printout(subproc):
             while True:
                 s = subproc.stdout.readline()
@@ -39,8 +45,9 @@ class Executor:
         port_ = port if port else "/dev/ttyUSB0"
         parts_ = ' '.join(("%s %s" % (fe[0], _escape(fe[1])) for fe in parts))
 
-        command = "{tool} --port={port} write_flash {bins}"\
-                   .format(tool=self.tool, port=port_, bins=parts_)
+        command = "{tool} --port={port} write_flash -ff {freq} -fm {mode} -fs {size} {bins}"\
+                   .format(tool=self.tool, port=port_, bins=parts_,
+                           freq=flash_freq, mode=flash_mode, size=flash_size)
 
         try:
             p = subprocess.Popen(command, shell=True,
