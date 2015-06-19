@@ -99,6 +99,9 @@ class Settings:
         return {
             key_port: opt(key_port),
             key_conf_current_set_name: self.__current_config() if self.__current_config() else default_conf_sec_name,
+            key_flash_mode: opt(key_flash_mode),
+            key_flash_freq: opt(key_flash_freq),
+            key_flash_size: opt(key_flash_size),
         }
 
     def save_general_settings(self, data):

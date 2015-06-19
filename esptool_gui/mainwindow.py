@@ -32,7 +32,7 @@ class MainWindow:
 
         comboframe.grid(row=0, column=0, pady=10, sticky=TK.NW)
         topframe.grid(row=1, column=0, sticky=TK.NSEW)
-        midframe.grid(row=2, column=0, sticky=TK.NSEW)
+        midframe.grid(row=2, column=0, pady=10, sticky=TK.NSEW)
         botframe.grid(row=3, column=0, sticky=TK.NSEW)
 
         # ***************************************************************
@@ -113,21 +113,51 @@ class MainWindow:
         return frame
 
     def __init_mid_frame(self, parent):
-        frame = TK.Frame(parent)
-        frame.columnconfigure(2, weight=1)
+        frame = TK.Frame(parent, relief=TK.RIDGE, bd=3)
+        frame.columnconfigure(8, weight=1)
 
         self.var_port_value = TK.StringVar()
+        self.var_flash_freq = TK.StringVar()
+        self.var_flash_mode = TK.StringVar()
+        self.var_flash_size = TK.StringVar()
 
         port_label = TK.Label(frame, text="Port:")
         port_value = TK.Entry(frame, textvariable=self.var_port_value, width=12)
+
+        style = TTK.Style()
+        # style.map('TCombobox', selectbackground=[('readonly', 'red')])
+        style.map('TCombobox', fieldbackground=[('readonly', 'white')])
+
+        combo_width = 12
+
+        flash_freq_label = TK.Label(frame, text="Flash freq:")
+        flash_freq = TTK.Combobox(frame, textvariable=self.var_flash_freq,
+                                  width=combo_width, state='readonly',
+                                  values=list_flash_frequencies)
+        flash_mode_label = TK.Label(frame, text="Flash mode:")
+        flash_mode = TTK.Combobox(frame, textvariable=self.var_flash_mode,
+                                  width=combo_width, state='readonly',
+                                  values=list_flash_modes)
+        flash_size_label = TK.Label(frame, text="Flash size:")
+        flash_size = TTK.Combobox(frame, textvariable=self.var_flash_size,
+                                  width=combo_width, state='readonly',
+                                  values=list_flash_sizes)
+
         flash_btn = TK.Button(frame, text="Flash", command=self.__execute)
         clear_log_btn = TK.Button(frame, text="Clear log",
                                   command=self.__clear_log)
 
-        port_label.grid(row=0, column=0, padx=2)
-        port_value.grid(row=0, column=1, padx=2)
-        flash_btn.grid(row=0, column=2, padx=10, pady=10, sticky=TK.E)
-        clear_log_btn.grid(row=1, column=2, padx=10, sticky=TK.E)
+        port_label.grid(row=0, column=0, padx=2, sticky=TK.W)
+        port_value.grid(row=0, column=1, padx=2, sticky=TK.W)
+        flash_btn.grid(row=0, column=8, padx=10, pady=5, sticky=TK.E)
+
+        flash_freq_label.grid(row=1, column=0, padx=2)
+        flash_freq.grid(row=1, column=1, padx=2)
+        flash_mode_label.grid(row=1, column=2, padx=2)
+        flash_mode.grid(row=1, column=3, padx=2)
+        flash_size_label.grid(row=1, column=4, padx=2)
+        flash_size.grid(row=1, column=5, padx=2)
+        clear_log_btn.grid(row=1, column=8, padx=10, pady=5, sticky=TK.E)
 
         return frame
 
@@ -229,7 +259,11 @@ class MainWindow:
         # general
         general_settings = {
             key_port: self.__port_get(),
-            key_conf_current_set_name: current_conf
+            key_conf_current_set_name: current_conf,
+
+            key_flash_freq: self.var_flash_freq.get(),
+            key_flash_mode: self.var_flash_mode.get(),
+            key_flash_size: self.var_flash_size.get(),
         }
         self.S.save_general_settings(general_settings)
 
@@ -244,6 +278,10 @@ class MainWindow:
         general_settings = self.S.general_settings()
         self.__port_set(general_settings[key_port])
         self.__combo_config_name_set(general_settings[key_conf_current_set_name])
+
+        self.var_flash_freq.set(general_settings[key_flash_freq])
+        self.var_flash_mode.set(general_settings[key_flash_mode])
+        self.var_flash_size.set(general_settings[key_flash_size])
 
         # fill combo with configurations list
         self.conf_combo['values'] = self.S.configurations()

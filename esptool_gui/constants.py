@@ -30,3 +30,11 @@ key_conf_sec_default = key_conf_prefix + default_conf_sec_name
 key_conf_last_dir = "lastdir"
 key_conf_current_set_name = "current"
 key_port = "port"
+key_flash_size = "flashsize"
+key_flash_mode = "flashmode"
+key_flash_freq = "flashfreq"
+
+
+list_flash_modes = ['qio', 'qout', 'dio', 'dout']
+list_flash_frequencies = ['40m', '26m', '20m', '80m']
+list_flash_sizes = ['8m','4m','16m','32m','16m-c1','32m-c1','32m-c2']
