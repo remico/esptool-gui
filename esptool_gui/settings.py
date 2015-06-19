@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
+"""The application's settings module
 """
 
 __author__ = 'remico <remicollab+github@gmal.com>'
@@ -17,7 +17,7 @@ def _conf_full(conf):
     return key_conf_prefix + conf
 
 
-class Settings:
+class INISettings:
     def __init__(self):
         self.sfname = 'espsettings.ini'
         if not os.path.exists(self.sfname):

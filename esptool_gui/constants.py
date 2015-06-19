@@ -7,6 +7,12 @@
 __author__ = 'remico <remicollab+github@gmal.com>'
 
 
+app_name = "esptool GUI"
+app_version = "0.1.0a"
+app_developer = "remico <remicollab+dev@gmail.com>"
+app_url = "https://github.com/remico/esptool-gui"
+
+
 n_file_entries = 8
 
 
@@ -37,4 +43,4 @@ key_flash_freq = "flashfreq"
 
 list_flash_modes = ['qio', 'qout', 'dio', 'dout']
 list_flash_frequencies = ['40m', '26m', '20m', '80m']
-list_flash_sizes = ['8m','4m','16m','32m','16m-c1','32m-c1','32m-c2']
+list_flash_sizes = ['8m','2m','4m','16m','32m','16m-c1','32m-c1','32m-c2']

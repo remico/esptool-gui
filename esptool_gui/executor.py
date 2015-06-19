@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
+"""Invokes the esptool.py script with specified parameters
 """
 
 __author__ = 'remico <remicollab+github@gmal.com>'
@@ -23,12 +23,12 @@ class Executor:
                              stdout=subprocess.PIPE, universal_newlines=True)
         return p.stdout.readline()[:-1]
 
-    def run(self, parts, **kwargs):
-        out = kwargs.get('out')
-        port = kwargs.get('port')
-        flash_freq = kwargs.get('ffreq', '40m')     # 40m, 26m, 20m, 80m
-        flash_mode = kwargs.get('fmode', 'qio')     # qio, qout, dio, dout
-        flash_size = kwargs.get('fsize', '8m')      # 4m,2m,8m,16m,32m,16m-c1,32m-c1,32m-c2 in MBit
+    def run(self, parts, **kw):
+        out = kw.get('out')
+        port = kw.get('port')
+        flash_freq = kw.get('ffreq', '40m')  # 40m, 26m, 20m, 80m
+        flash_mode = kw.get('fmode', 'qio')  # qio, qout, dio, dout
+        flash_size = kw.get('fsize', '4m')   # 4m,2m,8m,16m,32m,16m-c1,32m-c1,32m-c2 in MBit
 
         def printout(subproc):
             while True:
@@ -69,7 +69,7 @@ class Executor:
                 out.insert(TK.END, "================ BEGIN =================\n")
 
     def help(self, out):
-        out.insert(TK.END, "\n=================== GENERAL HELP ===================\n\n")
+        out.insert(TK.END, "\n====================== GENERAL HELP ======================\n\n")
         p = subprocess.Popen("{tool} -h".format(tool=self.tool),
                              shell=True, stdout=subprocess.PIPE,
                              universal_newlines=True)
@@ -81,5 +81,5 @@ class Executor:
                              universal_newlines=True)
         out.insert(TK.END, p.stdout.read())
 
-        out.insert(TK.END, "\n==================== END HELP ==================\n\n")
+        out.insert(TK.END, "\n========================= END HELP =======================\n\n")
         out.see(TK.END)

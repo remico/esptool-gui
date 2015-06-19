@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
+"""Main UI window
 """
 
 __author__ = 'remico <remicollab+github@gmal.com>'
@@ -10,8 +10,8 @@ import os
 import tkinter as TK
 import tkinter.ttk as TTK
 import tkinter.filedialog as filedialog
-# import tkinter.messagebox as messagebox
 from .constants import *
+from .about import show_about
 
 
 SLOT = lambda f, *x, **k: lambda: f(*x, **k)
@@ -41,8 +41,8 @@ class MainWindow:
         window.columnconfigure(0, weight=1)
         window.rowconfigure(3, weight=1)
 
-        self.parent.geometry("{0}x{1}+{2}+{3}".format(768, 768, 350, 150))
-        self.parent.title("esptool GUI")
+        self.parent.geometry("{0}x{1}+{2}+{3}".format(768, 768, 150, 100))
+        self.parent.title(" - ".join([app_name, app_version]))
         self.parent.bind("<Control-q>", self.app_quit)
 
         self.__read_settings()
@@ -63,12 +63,14 @@ class MainWindow:
         conf_btn_del = TK.Button(frame, text="Del",
                             command=lambda: self.__del_config(self.conf_combo.get()))
         help_btn = TK.Button(frame, text="Help", command=self.__help)
+        about_btn = TK.Button(frame, text="About", command=self.__about)
 
         conf_label.grid(row=0, column=0, padx=2, pady=2, sticky=TK.W)
         self.conf_combo.grid(row=0, column=1, padx=2, pady=2, sticky=TK.EW)
         conf_btn_add.grid(row=0, column=3, padx=2, pady=2)
         conf_btn_del.grid(row=0, column=4, padx=2, pady=2)
-        help_btn.grid(row=0, column=5, padx=2, pady=2, sticky=TK.E)
+        help_btn.grid(row=0, column=6, padx=2, pady=2, sticky=TK.E)
+        about_btn.grid(row=0, column=7, padx=2, pady=2, sticky=TK.E)
 
         return frame
 
@@ -117,7 +119,7 @@ class MainWindow:
 
     def __init_mid_frame(self, parent):
         frame = TK.Frame(parent, relief=TK.RIDGE, bd=3)
-        frame.columnconfigure(8, weight=1)
+        frame.columnconfigure(6, weight=1)
 
         self.var_port_value = TK.StringVar()
         self.var_flash_freq = TK.StringVar()
@@ -329,3 +331,6 @@ class MainWindow:
 
     def __help(self):
         self.executor.help(self.shell)
+
+    def __about(self):
+        show_about(self.parent)
