@@ -30,7 +30,7 @@ class MainWindow:
         midframe = self.__init_mid_frame(self.parent)
         botframe = self.__init_bot_frame(self.parent)
 
-        comboframe.grid(row=0, column=0, pady=10, sticky=TK.NW)
+        comboframe.grid(row=0, column=0, pady=10, sticky=TK.NSEW)
         topframe.grid(row=1, column=0, sticky=TK.NSEW)
         midframe.grid(row=2, column=0, pady=10, sticky=TK.NSEW)
         botframe.grid(row=3, column=0, sticky=TK.NSEW)
@@ -50,6 +50,7 @@ class MainWindow:
     def __init_combo_frame(self, parent):
         frame = TK.Frame(parent)
         frame.columnconfigure(1, weight=1)
+        frame.columnconfigure(5, weight=1000)
 
         self.var_conf_combo = TK.StringVar()
         self.var_conf_combo.trace('w', self.__combo_clicked)
@@ -61,11 +62,13 @@ class MainWindow:
                             command=lambda: self.__add_config(self.conf_combo.get()))
         conf_btn_del = TK.Button(frame, text="Del",
                             command=lambda: self.__del_config(self.conf_combo.get()))
+        help_btn = TK.Button(frame, text="Help", command=self.__help)
 
         conf_label.grid(row=0, column=0, padx=2, pady=2, sticky=TK.W)
         self.conf_combo.grid(row=0, column=1, padx=2, pady=2, sticky=TK.EW)
         conf_btn_add.grid(row=0, column=3, padx=2, pady=2)
         conf_btn_del.grid(row=0, column=4, padx=2, pady=2)
+        help_btn.grid(row=0, column=5, padx=2, pady=2, sticky=TK.E)
 
         return frame
 
@@ -323,3 +326,6 @@ class MainWindow:
 
     def __clear_log(self):
         self.shell.delete(1.0, TK.END)
+
+    def __help(self):
+        self.executor.help(self.shell)

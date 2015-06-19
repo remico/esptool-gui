@@ -67,3 +67,19 @@ class Executor:
         finally:
             if out is not None:
                 out.insert(TK.END, "================ BEGIN =================\n")
+
+    def help(self, out):
+        out.insert(TK.END, "\n=================== GENERAL HELP ===================\n\n")
+        p = subprocess.Popen("{tool} -h".format(tool=self.tool),
+                             shell=True, stdout=subprocess.PIPE,
+                             universal_newlines=True)
+        out.insert(TK.END, p.stdout.read())
+
+        out.insert(TK.END, "\n\n==================== WRITE FLASH HELP ==================\n\n")
+        p = subprocess.Popen("{tool} write_flash -h".format(tool=self.tool),
+                             shell=True, stdout=subprocess.PIPE,
+                             universal_newlines=True)
+        out.insert(TK.END, p.stdout.read())
+
+        out.insert(TK.END, "\n==================== END HELP ==================\n\n")
+        out.see(TK.END)
