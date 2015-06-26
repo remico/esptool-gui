@@ -1,8 +1,10 @@
 # esptool-gui
 GUI wrapper for ESP8266 ROM Bootloader utility [esptool.py](https://github.com/themadinventor/esptool)
 
+You can create any number of configurations (e.g. for several modules or SDKs or just
+for several projects, etc...)<br>
 To add a new configuration just modify current value of the 'Configuration' combobox.<br>
-The configuration will be saved on exit or when the 'Save' button will be pressed.<br>
+Current configuration will be saved on exit or when the 'Save' button will be pressed.<br>
 You can delete any existing configuration (including 'Default') except the last existing one.
 
 * `esptool.py` should be available in `$PATH`

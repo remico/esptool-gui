@@ -20,7 +20,7 @@ def show_about(parent):
     top = TK.Toplevel(parent)
     top.resizable(width=TK.FALSE, height=TK.FALSE)
     top.wm_title("About")
-    top.bind("<Escape>", lambda x: top.destroy())
+    top.bind("<Escape>", lambda *x: top.destroy())
 
     text_ = "{name}\n" \
             "{ver}\n\n" \
