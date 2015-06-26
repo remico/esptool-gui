@@ -9,7 +9,8 @@ __author__ = 'remico <remicollab+github@gmal.com>'
 
 app_name = "esptool GUI"
 app_version = "0.1.0a"
-app_developer = "remico <remicollab+dev@gmail.com>"
+app_developer = "remico"
+app_developer_email = "remicollab+dev@gmail.com"
 app_url = "https://github.com/remico/esptool-gui"
 
 

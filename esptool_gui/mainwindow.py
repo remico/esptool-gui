@@ -11,7 +11,7 @@ import tkinter as TK
 import tkinter.ttk as TTK
 import tkinter.filedialog as filedialog
 from .constants import *
-from .about import show_about
+from .about import wnd_about
 
 
 SLOT = lambda f, *x, **k: lambda: f(*x, **k)
@@ -333,4 +333,4 @@ class MainWindow:
         self.executor.help(self.shell)
 
     def __about(self):
-        show_about(self.parent)
+        wnd_about(self.parent)
