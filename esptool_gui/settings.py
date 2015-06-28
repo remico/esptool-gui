@@ -4,7 +4,7 @@
 """The application's settings module
 """
 
-__author__ = 'remico <remicollab+github@gmal.com>'
+__author__ = 'remico <remicollab+github@gmail.com>'
 
 import os.path
 import re

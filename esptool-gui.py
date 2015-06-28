@@ -13,7 +13,7 @@
 based on python3 and Tkinter
 """
 
-__author__ = 'remico <remicollab+github@gmal.com>'
+__author__ = 'remico <remicollab+github@gmail.com>'
 
 from esptool_gui.main import main
 

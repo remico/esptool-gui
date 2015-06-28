@@ -4,5 +4,5 @@
 """
 """
 
-__author__ = 'remico <remicollab+github@gmal.com>'
+__author__ = 'remico <remicollab+github@gmail.com>'
 

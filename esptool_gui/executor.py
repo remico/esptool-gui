@@ -4,7 +4,7 @@
 """Invokes the esptool.py script with specified parameters
 """
 
-__author__ = 'remico <remicollab+github@gmal.com>'
+__author__ = 'remico <remicollab+github@gmail.com>'
 
 import subprocess
 import tkinter as TK

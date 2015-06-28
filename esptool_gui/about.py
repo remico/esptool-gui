@@ -4,7 +4,7 @@
 """About window
 """
 
-__author__ = 'remico <remicollab+github@gmal.com>'
+__author__ = 'remico <remicollab+github@gmail.com>'
 
 import os.path
 import tkinter as TK
