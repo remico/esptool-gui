@@ -6,7 +6,7 @@
 
 __author__ = 'remico <remicollab+github@gmail.com>'
 
-import os.path
+import os.path, sys
 import tkinter as TK
 from .constants import *
 
@@ -39,7 +39,13 @@ def wnd_about(parent):
                     dev_email=app_developer_email,
                     app_url=app_url)
 
-    icon_path = os.path.join(os.path.dirname(__file__), "rc/app_icon.png")
+    # check if the application is frozen
+    if getattr(sys, 'frozen', False):
+        datadir = os.path.dirname(sys.executable)
+    else:
+        datadir = os.path.dirname(__file__)
+
+    icon_path = os.path.join(datadir, "rc/app_icon.png")
     icon = TK.PhotoImage(file=icon_path)
 
     icon_lbl = TK.Label(top, image=icon, text=text_, compound=TK.TOP)

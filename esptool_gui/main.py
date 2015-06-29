@@ -15,7 +15,14 @@ from .executor import Executor
 
 def main():
     application = TK.Tk()
-    path = os.path.join(os.path.dirname(__file__), "rc/")
+
+    # check if the application is frozen
+    if getattr(sys, 'frozen', False):
+        datadir = os.path.dirname(sys.executable)
+    else:
+        datadir = os.path.dirname(__file__)
+
+    path = os.path.join(datadir, "rc/")
     if sys.platform.startswith("win"):
         icon = path + "app_icon.ico"
         application.iconbitmap(icon, default=icon)

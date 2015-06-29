@@ -9,6 +9,7 @@ __author__ = 'remico <remicollab+github@gmail.com>'
 import subprocess
 import tkinter as TK
 from re import escape as _escape
+import sys, os.path
 
 
 class Executor:
@@ -19,9 +20,18 @@ class Executor:
         self.errfile_name = 'esptoolerr'
 
     def esptool_path(self):
-        p = subprocess.Popen('which esptool.py', shell=True,
-                             stdout=subprocess.PIPE, universal_newlines=True)
-        return p.stdout.readline()[:-1]
+        if getattr(sys, 'frozen', False):
+            esptool = os.path.join(os.path.dirname(sys.executable), 'esptool', 'esptool')
+        else:
+            p = subprocess.Popen('which esptool.py', shell=True,
+                                 stdout=subprocess.PIPE, universal_newlines=True)
+            esptool = p.stdout.readline()[:-1]
+
+        if sys.platform.startswith("win"):
+            esptool = '"' + esptool + '"'
+        else:
+            esptool = _escape(esptool)
+        return esptool
 
     def run(self, parts, **kw):
         out = kw.get('out')
@@ -51,7 +61,6 @@ class Executor:
 
         try:
             p = subprocess.Popen(command, shell=True,
-                                 # executable="/bin/bash",
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  universal_newlines=True)
