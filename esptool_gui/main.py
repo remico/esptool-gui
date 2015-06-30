@@ -30,6 +30,6 @@ def main():
         img = TK.PhotoImage(file=path + 'app_icon.png')
         application.tk.call('wm', 'iconphoto', application._w, img)
     window = MainWindow(application, INISettings(), Executor(application))
-    application.minsize(650, 650)
+    application.minsize(650, 500)
     application.protocol("WM_DELETE_WINDOW", window.app_quit)
     application.mainloop()

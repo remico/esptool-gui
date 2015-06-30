@@ -41,7 +41,7 @@ class MainWindow:
         window.columnconfigure(0, weight=1)
         window.rowconfigure(3, weight=1)
 
-        self.parent.geometry("{0}x{1}+{2}+{3}".format(768, 768, 150, 100))
+        self.parent.geometry("{0}x{1}+{2}+{3}".format(768, 600, 150, 50))
         self.parent.title(" - ".join([app_name, app_version]))
         self.parent.bind("<Control-q>", self.app_quit)
 
